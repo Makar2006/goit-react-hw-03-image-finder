@@ -13,6 +13,7 @@ export function App() {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [totalHits, setTotal] = useState(0);
   const maxImg = 250;
   const imgPerPage = 10;
 
@@ -23,7 +24,8 @@ export function App() {
       setLoading(true);
       try {
         const data = await fetchImages(query, page, imgPerPage);
-        setPhotos(prevImages => [...prevImages, ...data]);
+        setPhotos(prevImages => [...prevImages, ...data.hits]);
+        setTotal(data.totalHits);
       } catch (error) {
         console.error(`Error fetching images: ${error}`);
       } finally {
@@ -61,9 +63,9 @@ export function App() {
       <Searchbar onSubmit={whenSubmit} />
       {loading && <Loader />}
       <ImageGalleryItem photos={photos} onImageClick={whenImageClick} />
-      {photos.length < maxImg && photos.length > 0 && (
-        <Button onClick={onLoadMore} />
-      )}
+      {photos.length < maxImg &&
+        photos.length > 0 &&
+        totalHits > photos.length && <Button onClick={onLoadMore} />}
       {showModal && (
         <Modal largeImageURL={selectedImage} onClose={closeModal} />
       )}
